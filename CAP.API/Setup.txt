@@ -1,0 +1,33 @@
+This project is mostly setup for you, but there are a few things you will need to do when you first start up
+
+0. Rename your API and soultion files. You will have to open the the .sln file itself in Notepad++ 
+or some other program and change the name to match there as well. It should look like an xml
+file and you want to find this line 
+
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CAP.API", "CAP.API\CAP.API.csproj", "{C6DDD9B7-8ED0-4C17-9B9D-69DA158CBCCD}"
+
+You'll want to replace the = "CAP.API" with = "[Your project]"
+
+1. Update packages if you can
+2. Update your connection string in the appsettings.json and appsettings.Development.json
+3. Update the Process paths in web.config, web.Debug.config, and web.Release.config
+4. Uncomment the build.yml file and update the target_folder variable
+5. Scaffold / Migrate your models (if you have any)
+6. Configure Startup.cs
+7. Change the BYUAuthenticationHandler to match your database schema
+8. Create an IIS launch profile. The tutorial on how to do that is here: https://lifesciences.byu.edu/kb/configuring-iis-for-a-new-api
+9. Make sure your web.config file has the following lines after the closing tag of aspNetCore:
+
+      <modules runAllManagedModulesForAllRequests="false">
+        <remove name="WebDAVModule" />
+      </modules>
+
+      Without this, EF Core API's block PUT requests for some dumb reason.
+
+For the context setup you can checkout the contextSetup.txt in the Models folder
+
+When setting up the project, create a new project within sentry. Copy the DSN from the code it generates for you, and replace the dsn within the Program.cs.
+Make sure to add `SentrySdk.CaptureException(ex);` to the catch block s so we can capture exceptions
+
+AUTHENTICATION SETUP
+See https://halo.byu.edu/article?id=195 for more information on how to set up authentication

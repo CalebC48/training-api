@@ -1,0 +1,7 @@
+# Setup
+1. Replace all instances of DbContext with your DbContext type from your project.
+2. Create needed tests
+3. Profit
+
+
+Please make sure you test all portions of your classes. Check for thrown objects, etc. This is how we prevent future issues.

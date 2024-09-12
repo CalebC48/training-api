@@ -1,0 +1,55 @@
+on:
+  push:
+    branches: [ "main", "beta" ]
+
+jobs:
+  build_and_deploy:
+    name: Build, push and deploy to test vm
+    runs-on: [ self-hosted, Linux ]
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v3
+
+      # Make Repo name lowercase for Docker
+      - id: repo
+        uses: ASzc/change-string-case-action@v5
+        with:
+          string: ${{github.repository}}
+
+      - name: Create tag
+        id: tagger
+        uses: phish108/autotag-action@1.1.64
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN}}
+          release-branch: main # Where to create releases
+
+      # setup Docker buld action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Github Packages
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Image and push to Github Registry
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          tags: ghcr.io/${{ steps.repo.outputs.lowercase }}:${{ github.ref == 'refs/heads/main' && 'latest' || 'beta' }}
+          push: ${{github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'}}
+          cache-from: type=registry,ref=${{ steps.repo.outputs.lowercase }}:${{ github.ref == 'refs/heads/main' && 'latest' || 'beta' }}
+          cache-to: type=inline
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: Deploy to Rancher
+        uses: byu-life-sciences/redeploy-action@v2
+        with:
+          # Deploy to the proper namespaces and names based on branch
+          deployment-name: ${{ github.ref == 'refs/heads/main' && 'confocal-api' || 'confocal-beta-api' }}
+          namespace: ${{ github.ref == 'refs/heads/main' && 'web' || 'web-beta' }}

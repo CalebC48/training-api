@@ -1,0 +1,89 @@
+﻿If you have an exsisting database you are connecting to you just need a connection string that is formatted like this one for Grouse Tracker:
+
+	"Host=10.38.32.31; Database=GrouseTracker; Username=[Database Username]; Password=[Database Password];"
+
+There will be two empty stringa for you to insert these into in the appsettings.json, "Production" and "Development".
+
+From there, use the Scaffold-DbContext command which will fill out your models folder for you. If you are unfamiliar with that command you 
+can refference it here: https://docs.microsoft.com/en-us/ef/core/managing-schemas/scaffolding?tabs=vs
+
+If you are creating a new database, you should create your model classes first and then create the migrations using the Add-Migration commands.
+You do need to make sure you have an existing, empty database. If you do not, talk to engineering. Again, if you are unfamilar with how to use 
+those commands visit the refference here: https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=vs
+
+In order to use any of those commands, your project needs to compile. You might need to comment out the whole security files since they are
+dependant on your Dbcontext and models. After you are done with your database connection, you can go and recomment the code back in.
+
+Don't forget to make your models inherit from the TimeStamp base class.
+***Add the following to your context to enable logging from the Timestamp class:***
+
+
+private readonly IHttpContextAccessor _httpContextAccessor;
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<WeatherForecast>().UseTimestampedProperty();
+}
+
+public override int SaveChanges()
+        {
+            var accessorNetId = _httpContextAccessor.HttpContext.User.Identity.Name ?? "Unknown";
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e =>
+                        e.State == EntityState.Added
+                        || e.State == EntityState.Modified);
+
+            foreach (var entityEntry in entries)
+            {
+                entityEntry.Property("ModifiedBy").CurrentValue = accessorNetId;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entityEntry.Property("CreatedBy").CurrentValue = accessorNetId;
+                }
+            }
+
+            return base.SaveChanges();
+        }
+        public sealed override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var accessorNetId = _httpContextAccessor.HttpContext.User.Identity.Name ?? "Unknown";
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e =>
+                        e.State == EntityState.Added
+                        || e.State == EntityState.Modified);
+
+            foreach (var entityEntry in entries)
+            {
+                entityEntry.Property("ModifiedBy").CurrentValue = accessorNetId;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entityEntry.Property("CreatedBy").CurrentValue = accessorNetId;
+                }
+            }
+
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken);
+        }
+        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            var accessorNetId = _httpContextAccessor.HttpContext.User.Identity.Name ?? "Unknown";
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e =>
+                        e.State == EntityState.Added
+                        || e.State == EntityState.Modified);
+
+            foreach (var entityEntry in entries)
+            {
+                entityEntry.Property("ModifiedBy").CurrentValue = accessorNetId;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entityEntry.Property("CreatedBy").CurrentValue = accessorNetId;
+                }
+            }
+
+            return await base.SaveChangesAsync(true, cancellationToken).ConfigureAwait(false);
+        }
