@@ -1,3 +1,5 @@
+using CAP.API.Extensions;
+
 namespace CAP.API.Models.DTO;
 
 /// <summary>
@@ -56,10 +58,6 @@ public class UserDTO
     /// </param>
     public void CopyFromUser(User user)
     {
-        Id = user.Id;
-        NetId = user.NetId;
-        FirstName = user.FirstName;
-        LastName = user.LastName;
-        Email = user.Email;
+        user.CopyPropertiesTo(this);
     }
 }

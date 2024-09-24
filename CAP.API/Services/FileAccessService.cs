@@ -1,6 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using CAP.API.Exceptions;
+using CAP.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -8,7 +9,7 @@ namespace CAP.API.Services;
 
 public class FileAccessService : BaseService
 {
-    public FileAccessService(DbContext context) : base(context)
+    public FileAccessService(TrainingContext context) : base(context)
     {
     }
 

@@ -1,36 +1,80 @@
 using System;
 using System.Threading.Tasks;
 using CAP.API.Exceptions;
+using CAP.API.Models;
 using CAP.API.Models.DTO;
 using CAP.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sentry;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace CAP.API.Controllers;
 
-public class UsersController : ControllerBase
-{
+[Route("api/[controller]")]
+[ApiController]
+public class UsersController : ControllerBase {
+
+    private readonly TrainingContext _context;
     private readonly UserService _userService;
 
-    public UsersController(DbContext context)
+    public UsersController(TrainingContext context)
     {
+        _context = context;
         _userService = new UserService(context);
     }
 
+    // GET: api/Users
     [HttpGet]
-    [Produces("application/json")]
-    public async Task<ActionResult<UserDTO>> GetUser()
+    public async Task<ActionResult<IEnumerable<UserDTO>>> GetUsers()
+    {
+        return await _userService.GetAllUsers();
+    }
+
+    // POST: api/Users
+    [HttpPost]
+    public async Task<ActionResult> PostUser(UserDTO userDTO)
     {
         try
         {
-            throw new Exception("Yeet");
+            await _userService.AddUser(userDTO);
+            return NoContent();
         }
-        // Catch all exceptions, if all else fails.
-        catch (Exception e)
+        catch (NotFoundException)
         {
-            SentrySdk.CaptureException(e);
-            return StatusCode(500, new { Yeet = "Yeet" });
+            return NotFound();
         }
+        
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutUser(int id, UserDTO userDto)
+    {
+        try
+        {
+            await _userService.UpdateUser(id, userDto);
+            return NoContent();
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+        
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        try
+        {
+            await _userService.DeleteUser(id);
+            return NoContent();
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+        
     }
 }

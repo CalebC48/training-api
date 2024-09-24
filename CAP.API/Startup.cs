@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using CAP.API.Extensions;
+using CAP.API.Models;
 using CAP.API.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -76,12 +78,12 @@ namespace CAP.API
 
 
             // You will need to add your context here
-            //services.AddDbContext<CAPContext>(options =>
-            //{
-            //  var conn = Configuration.GetConnectionString("DefaultConnection");
+            services.AddDbContext<TrainingContext>(options =>
+            {
+             var conn = Configuration.GetConnectionString("DefaultConnection");
 
-            //	options.UseMySql(conn, ServerVersion.AutoDetect(conn));
-            //});
+            	options.UseMySql(conn, ServerVersion.AutoDetect(conn));
+            });
 
             // CORS configured to allow any origin to request our API
 #if DEBUG

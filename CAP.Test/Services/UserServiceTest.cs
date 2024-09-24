@@ -1,12 +1,16 @@
 using CAP.Test.Models;
 using Microsoft.EntityFrameworkCore;
+using CAP.API.Models;
+using CAP.API.Services;
+using System.Threading.Tasks;
 
 namespace CAP.Test.Services;
 
 // Replace all instances of DbContext with your db context
 public class UserServiceTest
 {
-    private DbContext _context;
+    private TrainingContext _context;
+    private UserService _userService;
 
     [OneTimeSetUp]
     public void OneTimeSetup()
@@ -15,7 +19,8 @@ public class UserServiceTest
         // InMemory database, rather than a real database.
         // You use it the exact same way you would use a real database.
         var options = TestDbContextOptionsBuilder.GetOptions();
-        _context = new DbContext(options);
+        _context = new TrainingContext(options);
+        _userService = new UserService(_context);
         // Add anything you need to the InMemory database here
         //_context.SaveChanges after you add anything
     }
@@ -23,18 +28,47 @@ public class UserServiceTest
     [SetUp]
     public void Setup()
     {
-        // Do your setup here
+        var user = new User()
+        {
+            Id = 1,
+            FirstName = "Test",
+            LastName = "User",
+            Email = "email",
+            NetId = "netId",
+        };
+        _context.Users.Add(user);
+
+        var user2 = new User()
+        {
+            Id = 2,
+            FirstName = "Test2",
+            LastName = "User2",
+            Email = "email2",
+            NetId = "netId2",
+        };
+        _context.Users.Add(user2);
+
+        _context.SaveChanges();
     }
 
     [TearDown]
     public void TearDown()
     {
-        // Do your tear down here
+        //remove all users
+        _context.Users.RemoveRange(_context.Users);
+        _context.SaveChanges();
     }
 
     [Test, Description("Explain What a Test is Doing")]
     public void Test1()
     {
         Assert.Pass();
+    }
+
+    [Test, Description("Gets all users in the DB")]
+    public async Task GetAllUsersTest()
+    {
+        var users = await _userService.GetAllUsers();
+        Assert.AreEqual(2, users.Count);
     }
 }

@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using CAP.API.Models;
 using CAP.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,7 @@ public class FileAccessController : ControllerBase
 {
     private readonly FileAccessService _fileAccessService;
 
-    public FileAccessController(DbContext context)
+    public FileAccessController(TrainingContext context)
     {
         _fileAccessService = new FileAccessService(context);
     }

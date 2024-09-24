@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using CAP.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace CAP.API.Services;
@@ -9,7 +10,7 @@ namespace CAP.API.Services;
 public class BaseService
 {
     // Set the context here, just specify the type of context you want to use.
-    protected readonly DbContext _context;
+    protected readonly TrainingContext _context;
 
     /// <summary>
     ///  Constructor that takes a DbContext
@@ -17,7 +18,7 @@ public class BaseService
     /// <param name="context">
     /// The DbContext to use
     /// </param>
-    public BaseService(DbContext context)
+    public BaseService(TrainingContext context)
     {
         Debug.WriteLine("Warning: The context type has not been set.");
         Debug.WriteLine(
